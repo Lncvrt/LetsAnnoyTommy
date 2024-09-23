@@ -17,17 +17,15 @@ def send_request():
         "amount": random.randint(80, 100),
         "gateway": random.choice([11, 15])
     }
-    response = requests.post(url, data=data, cookies=cookies)
-    return response.status_code, response.text
+    try:
+        response = requests.post(url, data=data, cookies=cookies)
+        return response.status_code
+    except Exception as e:
+        return f"Request failed: {e}"
 
-def send_requests_multithreaded(num_requests):
+def continuously_send_requests():
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(send_request) for _ in range(num_requests)]
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                status_code, response_text = future.result()
-                print(f"Status Code: {status_code}, Response: {response_text}")
-            except Exception as e:
-                print(f"Request failed: {e}")
+        while True:
+            executor.submit(send_request)
 
-send_requests_multithreaded(10)
+continuously_send_requests()
